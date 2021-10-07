@@ -10,3 +10,28 @@ services:
       MINIO_SECRET_KEY: minio123
     entrypoint: sh
     command: -c 'mkdir -p /data/notea && mkdir -p /data/notea-test && /usr/bin/minio server /data'
+    
+    
+    services:
+  notea-webapp:
+    image: cinwell/notea
+    container_name: Write Notes
+    ports:
+      - "3000:3000"
+    environment:
+      - STORE_ACCESS_KEY=minioadmin
+      - STORE_SECRET_KEY=minioadmin
+      - STORE_BUCKET=notea
+      - STORE_END_POINT=http://notea-db:9000
+      - STORE_FORCE_PATH_STYLE=true
+      - PASSWORD=password
+      - COOKIE_SECURE=true
+      - BASE_URL="https://onlinenotes-xi.vercel.app:3000/"
+  notea-db:
+    image: minio/minio
+    container_name: notea-db
+    ports:
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - /SOME/PERSISTENT/PATH:/data
+    command: server /data
